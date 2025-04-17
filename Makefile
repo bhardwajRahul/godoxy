@@ -50,6 +50,12 @@ export GODEBUG
 export GORACE
 export BUILD_FLAGS
 
+ifeq ($(shell id -u), 0)
+	SETCAP_CMD = setcap
+else
+	SETCAP_CMD = sudo setcap
+endif
+
 .PHONY: debug
 
 test:
@@ -61,10 +67,9 @@ get:
 build:
 	mkdir -p bin
 	go build ${BUILD_FLAGS} -o bin/${NAME} ${CMD_PATH}
-	if [ $(shell id -u) -eq 0 ]; \
-		then setcap CAP_NET_BIND_SERVICE=+eip bin/${NAME}; \
-		else sudo setcap CAP_NET_BIND_SERVICE=+eip bin/${NAME}; \
-	fi
+
+	# CAP_NET_BIND_SERVICE: permission for binding to :80 and :443
+	$(SETCAP_CMD) CAP_NET_BIND_SERVICE=+ep bin/${NAME}
 
 run:
 	[ -f .env ] && godotenv -f .env go run ${BUILD_FLAGS} ${CMD_PATH}

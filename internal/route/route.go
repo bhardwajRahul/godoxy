@@ -126,8 +126,11 @@ func (r *Route) Validate() (err gperr.Error) {
 			}
 
 			l.Info().Msgf("finding reachable ip addresses")
+			errs := gperr.NewBuilder("failed to find reachable ip addresses")
 			for _, ip := range ips {
-				if ok, _ := gpnet.PingWithTCPFallback(ctx, ip, r.Port.Proxy); ok {
+				if err := gpnet.PingTCP(ctx, ip, r.Port.Proxy); err != nil {
+					errs.Add(gperr.Unwrap(err).Subjectf("%s:%d", ip, r.Port.Proxy))
+				} else {
 					r.Host = ip.String()
 					l.Info().Msgf("using ip %s", r.Host)
 					break
@@ -136,7 +139,7 @@ func (r *Route) Validate() (err gperr.Error) {
 			if r.Host == DefaultHost {
 				return gperr.Multiline().
 					Addf("no reachable ip addresses found, tried %d IPs", len(ips)).
-					AddLines(ips).
+					With(errs.Error()).
 					Subject(containerName)
 			}
 		}
