@@ -27,6 +27,7 @@ todo.md
 
 .*.swp
 .aider*
+.cursorrules
 mtrace.json
 .env
 test.Dockerfile
