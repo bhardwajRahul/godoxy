@@ -135,7 +135,6 @@ func (p *Poller[T, AggregateT]) pollWithTimeout(ctx context.Context) {
 }
 
 func (p *Poller[T, AggregateT]) Start() {
-	t := task.RootTask("poller."+p.name, true)
 	err := p.load()
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -150,6 +149,7 @@ func (p *Poller[T, AggregateT]) Start() {
 		gatherErrsTicker := time.NewTicker(gatherErrsInterval)
 		saveTicker := time.NewTicker(saveInterval)
 
+		t := task.RootTask("poller."+p.name, true)
 		defer func() {
 			pollTicker.Stop()
 			gatherErrsTicker.Stop()

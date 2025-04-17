@@ -1,11 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"sync"
 
+	"github.com/bytedance/sonic"
 	"github.com/yusing/go-proxy/internal/api/v1/auth"
 	debugapi "github.com/yusing/go-proxy/internal/api/v1/debug"
 	"github.com/yusing/go-proxy/internal/api/v1/query"
@@ -165,7 +165,7 @@ func prepareDirectory(dir string) {
 }
 
 func printJSON(obj any) {
-	j, err := json.MarshalIndent(obj, "", "  ")
+	j, err := sonic.MarshalIndent(obj, "", "  ")
 	if err != nil {
 		logging.Fatal().Err(err).Send()
 	}

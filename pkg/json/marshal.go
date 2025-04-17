@@ -2,7 +2,6 @@ package json
 
 import (
 	"encoding"
-	stdJSON "encoding/json"
 
 	"fmt"
 	"net"
@@ -116,7 +115,7 @@ func appendWithCustomMarshaler(v reflect.Value, buf []byte) (res []byte, ok bool
 	case fmt.Stringer:
 		cacheMarshalFunc(v.Type(), appendStringer)
 		return AppendString(buf, vv.String()), true
-	case stdJSON.Marshaler:
+	case StdMarshaler:
 		cacheMarshalFunc(v.Type(), appendStdJSONMarshaler)
 		return append(buf, must(vv.MarshalJSON())...), true
 	case encoding.BinaryAppender:
@@ -207,7 +206,7 @@ func appendStringer(v reflect.Value, buf []byte) []byte {
 }
 
 func appendStdJSONMarshaler(v reflect.Value, buf []byte) []byte {
-	return append(buf, must(v.Interface().(stdJSON.Marshaler).MarshalJSON())...)
+	return append(buf, must(v.Interface().(StdMarshaler).MarshalJSON())...)
 }
 
 func appendBinaryAppender(v reflect.Value, buf []byte) []byte {

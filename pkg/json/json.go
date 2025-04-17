@@ -7,6 +7,10 @@ import (
 	"github.com/yusing/go-proxy/internal/utils/synk"
 )
 
+type StdMarshaler interface {
+	MarshalJSON() ([]byte, error)
+}
+
 type Marshaler interface {
 	MarshalJSONTo(buf []byte) []byte
 }
