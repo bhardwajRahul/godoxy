@@ -44,8 +44,8 @@ require (
 // docker
 
 require (
-	github.com/docker/cli v28.1.0+incompatible // docker cli
-	github.com/docker/docker v28.1.0+incompatible // docker daemon
+	github.com/docker/cli v28.1.1+incompatible // docker cli
+	github.com/docker/docker v28.1.1+incompatible // docker daemon
 )
 
 replace github.com/docker/docker => github.com/godoxy-app/docker v0.0.0-20250418000134-7af8fd7b079e
@@ -65,7 +65,12 @@ require (
 	github.com/stretchr/testify v1.10.0 // testing utilities
 )
 
-require github.com/luthermonson/go-proxmox v0.2.2
+require (
+	github.com/luthermonson/go-proxmox v0.2.2 // proxmox api
+	github.com/spf13/afero v1.14.0 // mock file system
+)
+
+require go.uber.org/atomic v1.11.0
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
@@ -93,7 +98,7 @@ require (
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/pprof v0.0.0-20250417201159-ae779711f5d1 // indirect
+	github.com/google/pprof v0.0.0-20250418163039-24c5476c6587 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect

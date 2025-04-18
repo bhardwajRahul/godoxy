@@ -1,7 +1,6 @@
 package accesslog_test
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -54,15 +53,13 @@ var (
 )
 
 func fmtLog(cfg *Config) (ts string, line string) {
-	var buf bytes.Buffer
+	buf := make([]byte, 0, 1024)
 
 	t := time.Now()
 	logger := NewMockAccessLogger(testTask, cfg)
-	logger.Formatter.SetGetTimeNow(func() time.Time {
-		return t
-	})
-	logger.Format(&buf, req, resp)
-	return t.Format(LogTimeFormat), buf.String()
+	MockTimeNow(t)
+	buf = logger.AppendLog(buf, req, resp)
+	return t.Format(LogTimeFormat), string(buf)
 }
 
 func TestAccessLoggerCommon(t *testing.T) {
@@ -105,7 +102,7 @@ type JSONLogEntry struct {
 	Method      string              `json:"method"`
 	Scheme      string              `json:"scheme"`
 	Host        string              `json:"host"`
-	URI         string              `json:"uri"`
+	Path        string              `json:"path"`
 	Protocol    string              `json:"protocol"`
 	Status      int                 `json:"status"`
 	Error       string              `json:"error,omitempty"`
@@ -135,7 +132,7 @@ func TestAccessLoggerJSON(t *testing.T) {
 	expect.Equal(t, entry.Method, method)
 	expect.Equal(t, entry.Scheme, "http")
 	expect.Equal(t, entry.Host, testURL.Host)
-	expect.Equal(t, entry.URI, testURL.RequestURI())
+	expect.Equal(t, entry.Path, testURL.Path)
 	expect.Equal(t, entry.Protocol, proto)
 	expect.Equal(t, entry.Status, status)
 	expect.Equal(t, entry.ContentType, "text/plain")
@@ -146,5 +143,25 @@ func TestAccessLoggerJSON(t *testing.T) {
 	expect.Equal(t, len(entry.Cookies), 0)
 	if status >= 400 {
 		expect.Equal(t, entry.Error, http.StatusText(status))
+	}
+}
+
+func BenchmarkAccessLoggerJSON(b *testing.B) {
+	config := DefaultConfig()
+	config.Format = FormatJSON
+	logger := NewMockAccessLogger(testTask, config)
+	b.ResetTimer()
+	for b.Loop() {
+		logger.Log(req, resp)
+	}
+}
+
+func BenchmarkAccessLoggerCombined(b *testing.B) {
+	config := DefaultConfig()
+	config.Format = FormatCombined
+	logger := NewMockAccessLogger(testTask, config)
+	b.ResetTimer()
+	for b.Loop() {
+		logger.Log(req, resp)
 	}
 }

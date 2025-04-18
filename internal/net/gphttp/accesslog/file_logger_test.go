@@ -47,7 +47,7 @@ func TestConcurrentFileLoggersShareSameAccessLogIO(t *testing.T) {
 }
 
 func TestConcurrentAccessLoggerLogAndFlush(t *testing.T) {
-	var file MockFile
+	file := NewMockFile()
 
 	cfg := DefaultConfig()
 	cfg.BufferSize = 1024
@@ -58,15 +58,15 @@ func TestConcurrentAccessLoggerLogAndFlush(t *testing.T) {
 	loggers := make([]*AccessLogger, loggerCount)
 
 	for i := range loggerCount {
-		loggers[i] = NewAccessLoggerWithIO(parent, &file, cfg)
+		loggers[i] = NewAccessLoggerWithIO(parent, file, cfg)
 	}
 
 	var wg sync.WaitGroup
 	req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
 	resp := &http.Response{StatusCode: http.StatusOK}
 
+	wg.Add(len(loggers))
 	for _, logger := range loggers {
-		wg.Add(1)
 		go func(l *AccessLogger) {
 			defer wg.Done()
 			parallelLog(l, req, resp, logCountPerLogger)
@@ -77,7 +77,7 @@ func TestConcurrentAccessLoggerLogAndFlush(t *testing.T) {
 	wg.Wait()
 
 	expected := loggerCount * logCountPerLogger
-	actual := file.LineCount()
+	actual := file.NumLines()
 	expect.Equal(t, actual, expected)
 }
 

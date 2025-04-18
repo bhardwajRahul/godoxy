@@ -10,6 +10,7 @@ import (
 
 func init() {
 	if common.IsTest {
+		// force verbose output
 		os.Args = append([]string{os.Args[0], "-test.v"}, os.Args[1:]...)
 	}
 }
@@ -22,14 +23,18 @@ func Must[Result any](r Result, err error) Result {
 }
 
 var (
-	NoError       = require.NoError
-	HasError      = require.Error
-	True          = require.True
-	False         = require.False
-	Nil           = require.Nil
-	NotNil        = require.NotNil
-	ErrorContains = require.ErrorContains
-	Panics        = require.Panics
+	NoError        = require.NoError
+	HasError       = require.Error
+	True           = require.True
+	False          = require.False
+	Nil            = require.Nil
+	NotNil         = require.NotNil
+	ErrorContains  = require.ErrorContains
+	Panics         = require.Panics
+	Greater        = require.Greater
+	Less           = require.Less
+	GreaterOrEqual = require.GreaterOrEqual
+	LessOrEqual    = require.LessOrEqual
 )
 
 func ErrorIs(t *testing.T, expected error, err error, msgAndArgs ...any) {

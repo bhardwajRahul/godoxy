@@ -1,8 +1,7 @@
 package accesslog
 
 import (
-	"errors"
-
+	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/utils"
 )
 
@@ -35,13 +34,15 @@ var (
 	FormatCommon   Format = "common"
 	FormatCombined Format = "combined"
 	FormatJSON     Format = "json"
+
+	AvailableFormats = []Format{FormatCommon, FormatCombined, FormatJSON}
 )
 
-const DefaultBufferSize = 64 * 1024 // 64KB
+const DefaultBufferSize = 64 * kilobyte // 64KB
 
-func (cfg *Config) Validate() error {
+func (cfg *Config) Validate() gperr.Error {
 	if cfg.Path == "" && !cfg.Stdout {
-		return errors.New("path or stdout is required")
+		return gperr.New("path or stdout is required")
 	}
 	return nil
 }
@@ -50,6 +51,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		BufferSize: DefaultBufferSize,
 		Format:     FormatCombined,
+		Retention:  &Retention{Days: 30},
 		Fields: Fields{
 			Headers: FieldConfig{
 				Default: FieldModeDrop,

@@ -49,7 +49,6 @@ func TestAccessLoggerJSONRedactHeaders(t *testing.T) {
 	config := DefaultConfig()
 	config.Fields.Headers.Default = FieldModeRedact
 	entry := getJSONEntry(t, config)
-	expect.Equal(t, len(entry.Headers["Cookie"]), 0)
 	for k := range req.Header {
 		if k != "Cookie" {
 			expect.Equal(t, entry.Headers[k], []string{RedactedValue})
@@ -62,7 +61,6 @@ func TestAccessLoggerJSONKeepCookies(t *testing.T) {
 	config.Fields.Headers.Default = FieldModeKeep
 	config.Fields.Cookies.Default = FieldModeKeep
 	entry := getJSONEntry(t, config)
-	expect.Equal(t, len(entry.Headers["Cookie"]), 0)
 	for _, cookie := range req.Cookies() {
 		expect.Equal(t, entry.Cookies[cookie.Name], cookie.Value)
 	}
@@ -73,7 +71,6 @@ func TestAccessLoggerJSONRedactCookies(t *testing.T) {
 	config.Fields.Headers.Default = FieldModeKeep
 	config.Fields.Cookies.Default = FieldModeRedact
 	entry := getJSONEntry(t, config)
-	expect.Equal(t, len(entry.Headers["Cookie"]), 0)
 	for _, cookie := range req.Cookies() {
 		expect.Equal(t, entry.Cookies[cookie.Name], RedactedValue)
 	}

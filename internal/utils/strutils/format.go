@@ -72,9 +72,9 @@ func AppendDuration(d time.Duration, buf []byte) []byte {
 		// replace last part ', ' with ' and ' in-place, alloc-free
 		// ', ' is 2 bytes, ' and ' is 5 bytes, so we need to make room for 3 more bytes
 		tailLen := len(buf) - (idxPartBeg + 2)
-		buf = append(buf, "000"...) // append 3 bytes for ' and '
+		buf = append(buf, "000"...)                                      // append 3 bytes for ' and '
 		copy(buf[idxPartBeg+5:], buf[idxPartBeg+2:idxPartBeg+2+tailLen]) // shift tail right by 3
-		copy(buf[idxPartBeg:], " and ") // overwrite ', ' with ' and '
+		copy(buf[idxPartBeg:], " and ")                                  // overwrite ', ' with ' and '
 	}
 	return buf
 }
@@ -172,11 +172,11 @@ func AppendTimeWithReference(t, ref time.Time, buf []byte) []byte {
 	}
 }
 
-func FormatByteSize(size int64) string {
+func FormatByteSize[T ~int | ~uint | ~int64 | ~uint64 | ~float64](size T) string {
 	return string(AppendByteSize(size, nil))
 }
 
-func AppendByteSize[T ~int64 | ~uint64 | ~float64](size T, buf []byte) []byte {
+func AppendByteSize[T ~int | ~uint | ~int64 | ~uint64 | ~float64](size T, buf []byte) []byte {
 	const (
 		_ = (1 << (10 * iota))
 		kb
@@ -188,9 +188,9 @@ func AppendByteSize[T ~int64 | ~uint64 | ~float64](size T, buf []byte) []byte {
 	switch {
 	case size < kb:
 		switch any(size).(type) {
-		case int64:
+		case int, int64:
 			buf = strconv.AppendInt(buf, int64(size), 10)
-		case uint64:
+		case uint, uint64:
 			buf = strconv.AppendUint(buf, uint64(size), 10)
 		case float64:
 			buf = appendFloat(float64(size), buf)
