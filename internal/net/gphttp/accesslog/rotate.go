@@ -55,6 +55,8 @@ var rotateBytePool = synk.NewBytesPool(0, 16*1024*1024)
 // and stop once error occurs or found a line that should not be kept.
 //
 // Any invalid lines will be skipped and not included in the result.
+//
+// If the file does not need to be rotated, it returns nil, nil.
 func rotateLogFile(file supportRotate, config *Retention) (result *RotateResult, err error) {
 	if config.KeepSize > 0 {
 		return rotateLogFileBySize(file, config)
@@ -76,6 +78,11 @@ func rotateLogFile(file supportRotate, config *Retention) (result *RotateResult,
 	s := NewBackScanner(file, defaultChunkSize)
 	result = &RotateResult{
 		OriginalSize: s.FileSize(),
+	}
+
+	// nothing to rotate, return the nothing
+	if result.OriginalSize == 0 {
+		return nil, nil
 	}
 
 	// Store the line positions and sizes we want to keep
@@ -125,12 +132,12 @@ func rotateLogFile(file supportRotate, config *Retention) (result *RotateResult,
 
 	// nothing to keep, truncate to empty
 	if len(linesToKeep) == 0 {
-		return result, file.Truncate(0)
+		return nil, file.Truncate(0)
 	}
 
-	// nothing to rotate, return the result
+	// nothing to rotate, return nothing
 	if result.NumBytesKeep == result.OriginalSize {
-		return result, nil
+		return nil, nil
 	}
 
 	// Read each line and write it to the beginning of the file
