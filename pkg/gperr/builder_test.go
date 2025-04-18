@@ -5,8 +5,8 @@ import (
 	"io"
 	"testing"
 
-	. "github.com/yusing/go-proxy/internal/gperr"
 	expect "github.com/yusing/go-proxy/internal/utils/testing"
+	. "github.com/yusing/go-proxy/pkg/gperr"
 )
 
 func TestBuilderEmpty(t *testing.T) {

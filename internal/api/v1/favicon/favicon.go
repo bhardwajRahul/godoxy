@@ -4,10 +4,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/homepage"
 	"github.com/yusing/go-proxy/internal/net/gphttp"
 	"github.com/yusing/go-proxy/internal/route/routes"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 // GetFavIcon returns the favicon of the route

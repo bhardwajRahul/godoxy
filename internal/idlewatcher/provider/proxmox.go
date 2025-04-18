@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	idlewatcher "github.com/yusing/go-proxy/internal/idlewatcher/types"
 	"github.com/yusing/go-proxy/internal/proxmox"
 	"github.com/yusing/go-proxy/internal/watcher"
 	"github.com/yusing/go-proxy/internal/watcher/events"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type ProxmoxProvider struct {

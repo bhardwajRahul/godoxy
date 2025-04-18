@@ -15,9 +15,9 @@ import (
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/sensors"
 	"github.com/yusing/go-proxy/internal/common"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/internal/metrics/period"
+	"github.com/yusing/go-proxy/pkg/gperr"
 	"github.com/yusing/go-proxy/pkg/json"
 )
 

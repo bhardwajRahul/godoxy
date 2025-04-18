@@ -4,9 +4,9 @@ import (
 	"slices"
 
 	"github.com/yusing/go-proxy/agent/pkg/agent"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/route"
 	"github.com/yusing/go-proxy/internal/route/provider"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 func (cfg *Config) DumpRoutes() map[string]*route.Route {

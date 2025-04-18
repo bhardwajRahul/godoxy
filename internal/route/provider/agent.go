@@ -3,9 +3,9 @@ package provider
 import (
 	"github.com/rs/zerolog"
 	"github.com/yusing/go-proxy/agent/pkg/agent"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/route"
 	"github.com/yusing/go-proxy/internal/watcher"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type AgentProvider struct {

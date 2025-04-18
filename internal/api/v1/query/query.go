@@ -9,9 +9,9 @@ import (
 
 	v1 "github.com/yusing/go-proxy/internal/api/v1"
 	"github.com/yusing/go-proxy/internal/common"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/net/gphttp"
 	"github.com/yusing/go-proxy/internal/net/gphttp/middleware"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 func ReloadServer() gperr.Error {

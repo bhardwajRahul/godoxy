@@ -8,8 +8,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	gphttp "github.com/yusing/go-proxy/internal/net/gphttp"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type (

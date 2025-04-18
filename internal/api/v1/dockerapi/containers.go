@@ -6,7 +6,7 @@ import (
 	"sort"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/yusing/go-proxy/internal/gperr"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type Container struct {

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/yusing/go-proxy/internal/api/v1/auth"
-	"github.com/yusing/go-proxy/internal/gperr"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type oidcMiddleware struct {

@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	expect "github.com/yusing/go-proxy/internal/utils/testing"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 func TestParser(t *testing.T) {

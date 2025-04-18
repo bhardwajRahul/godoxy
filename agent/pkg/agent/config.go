@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/yusing/go-proxy/agent/pkg/certs"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/net/gphttp"
 	"github.com/yusing/go-proxy/pkg"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type AgentConfig struct {

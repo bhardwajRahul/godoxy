@@ -4,8 +4,8 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/utils/strutils"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type RuleOn struct {

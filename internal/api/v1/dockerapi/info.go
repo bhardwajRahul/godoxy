@@ -8,8 +8,8 @@ import (
 	"github.com/yusing/go-proxy/pkg/json"
 
 	dockerSystem "github.com/docker/docker/api/types/system"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/utils/strutils"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type dockerInfo dockerSystem.Info

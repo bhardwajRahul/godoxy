@@ -1,9 +1,9 @@
 package migrations
 
 import (
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/pkg"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 func RunMigrations() error {

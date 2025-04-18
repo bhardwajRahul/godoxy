@@ -6,10 +6,10 @@ import (
 	"net"
 	"sync"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/logging"
 	gpnet "github.com/yusing/go-proxy/internal/net/types"
 	F "github.com/yusing/go-proxy/internal/utils/functional"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type (

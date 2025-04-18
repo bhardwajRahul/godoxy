@@ -8,11 +8,11 @@ import (
 
 	"github.com/yusing/go-proxy/pkg/json"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/logging"
 	gphttp "github.com/yusing/go-proxy/internal/net/gphttp"
 	"github.com/yusing/go-proxy/internal/net/gphttp/reverseproxy"
 	"github.com/yusing/go-proxy/internal/utils"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type (

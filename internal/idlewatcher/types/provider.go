@@ -3,8 +3,8 @@ package idlewatcher
 import (
 	"context"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/watcher/events"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type Provider interface {

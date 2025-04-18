@@ -4,10 +4,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	idlewatcher "github.com/yusing/go-proxy/internal/idlewatcher/types"
 	"github.com/yusing/go-proxy/internal/task"
 	"github.com/yusing/go-proxy/internal/watcher/health"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 // Start implements health.HealthMonitor.

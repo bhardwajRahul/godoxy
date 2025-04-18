@@ -8,8 +8,8 @@ import (
 
 	"github.com/yusing/go-proxy/pkg/json"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/net/gphttp/httpheaders"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 // ServerError is for handling server errors.

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/utils"
 	expect "github.com/yusing/go-proxy/internal/utils/testing"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 //go:embed test_data/cidr_whitelist_test.yml

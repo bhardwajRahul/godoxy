@@ -8,8 +8,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/utils/synk"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 // TODO: move to "utils/io".

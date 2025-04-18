@@ -9,9 +9,9 @@ import (
 	"net/url"
 
 	"github.com/yusing/go-proxy/internal/common"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/net/gphttp/reverseproxy"
 	expect "github.com/yusing/go-proxy/internal/utils/testing"
+	"github.com/yusing/go-proxy/pkg/gperr"
 	"github.com/yusing/go-proxy/pkg/json"
 )
 

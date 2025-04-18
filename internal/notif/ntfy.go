@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
-	"github.com/yusing/go-proxy/internal/gperr"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 // See https://docs.ntfy.sh/publish

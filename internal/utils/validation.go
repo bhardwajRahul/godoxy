@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/go-playground/validator/v10"
-	"github.com/yusing/go-proxy/internal/gperr"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 var validate = validator.New()

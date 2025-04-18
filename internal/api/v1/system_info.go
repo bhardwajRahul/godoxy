@@ -5,11 +5,11 @@ import (
 
 	"github.com/yusing/go-proxy/agent/pkg/agent"
 	agentPkg "github.com/yusing/go-proxy/agent/pkg/agent"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/metrics/systeminfo"
 	"github.com/yusing/go-proxy/internal/net/gphttp"
 	"github.com/yusing/go-proxy/internal/net/gphttp/httpheaders"
 	"github.com/yusing/go-proxy/internal/net/gphttp/reverseproxy"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 func SystemInfo(w http.ResponseWriter, r *http.Request) {

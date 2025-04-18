@@ -6,8 +6,8 @@ import (
 
 	"github.com/yusing/go-proxy/pkg/json"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	expect "github.com/yusing/go-proxy/internal/utils/testing"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 //go:embed test_data/middleware_compose.yml

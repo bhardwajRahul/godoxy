@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	gphttp "github.com/yusing/go-proxy/internal/net/gphttp"
 	"github.com/yusing/go-proxy/internal/utils"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type (

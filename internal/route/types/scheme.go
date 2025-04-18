@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/yusing/go-proxy/internal/gperr"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type Scheme string

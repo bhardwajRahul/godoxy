@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	expect "github.com/yusing/go-proxy/internal/utils/testing"
+	"github.com/yusing/go-proxy/pkg/gperr"
 	"golang.org/x/crypto/bcrypt"
 )
 

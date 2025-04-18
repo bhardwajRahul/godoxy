@@ -9,7 +9,7 @@ import (
 
 	"github.com/yusing/go-proxy/pkg/json"
 
-	"github.com/yusing/go-proxy/internal/gperr"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type Webhook struct {

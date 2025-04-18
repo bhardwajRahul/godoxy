@@ -11,7 +11,6 @@ import (
 	"github.com/yusing/go-proxy/internal/api/v1/query"
 	"github.com/yusing/go-proxy/internal/common"
 	"github.com/yusing/go-proxy/internal/config"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/homepage"
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/internal/logging/memlogger"
@@ -22,6 +21,7 @@ import (
 	"github.com/yusing/go-proxy/internal/task"
 	"github.com/yusing/go-proxy/migrations"
 	"github.com/yusing/go-proxy/pkg"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 var rawLogger = log.New(os.Stdout, "", 0)

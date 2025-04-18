@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/internal/task"
 	"github.com/yusing/go-proxy/internal/utils/synk"
+	"github.com/yusing/go-proxy/pkg/gperr"
 	"golang.org/x/time/rate"
 )
 

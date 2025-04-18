@@ -1,8 +1,8 @@
 package accesslog
 
 import (
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/utils"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type (

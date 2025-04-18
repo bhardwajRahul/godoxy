@@ -2,10 +2,10 @@ package notif
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/internal/task"
 	F "github.com/yusing/go-proxy/internal/utils/functional"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type (

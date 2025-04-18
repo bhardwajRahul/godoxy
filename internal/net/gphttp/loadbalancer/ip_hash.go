@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/yusing/go-proxy/internal/gperr"
 	"github.com/yusing/go-proxy/internal/net/gphttp/middleware"
+	"github.com/yusing/go-proxy/pkg/gperr"
 )
 
 type ipHash struct {
