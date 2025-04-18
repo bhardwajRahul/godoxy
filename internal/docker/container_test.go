@@ -37,7 +37,7 @@ func TestContainerExplicit(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := FromDocker(&container.Summary{Names: []string{"test"}, State: "test", Labels: tt.labels}, "")
+			c := FromDocker(&container.SummaryTrimmed{Names: []string{"test"}, State: "test", Labels: tt.labels}, "")
 			expect.Equal(t, c.IsExplicit, tt.isExplicit)
 		})
 	}

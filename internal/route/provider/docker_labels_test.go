@@ -16,7 +16,7 @@ var testDockerLabelsYAML []byte
 
 func TestParseDockerLabels(t *testing.T) {
 	provider := &DockerProvider{
-		name: "test",
+		name:       "test",
 		dockerHost: "unix:///var/run/docker.sock",
 	}
 
@@ -24,7 +24,7 @@ func TestParseDockerLabels(t *testing.T) {
 	expect.NoError(t, yaml.Unmarshal(testDockerLabelsYAML, &labels))
 
 	routes, err := provider.routesFromContainerLabels(
-		docker.FromDocker(&container.Summary{
+		docker.FromDocker(&container.SummaryTrimmed{
 			Names:  []string{"container"},
 			Labels: labels,
 			State:  "running",

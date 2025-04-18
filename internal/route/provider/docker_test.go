@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	D "github.com/yusing/go-proxy/internal/docker"
 	"github.com/yusing/go-proxy/internal/route"
@@ -20,7 +19,7 @@ const (
 	testDockerIP = "172.17.0.123"
 )
 
-func makeRoutes(cont *container.Summary, dockerHostIP ...string) route.Routes {
+func makeRoutes(cont *container.SummaryTrimmed, dockerHostIP ...string) route.Routes {
 	var p DockerProvider
 
 	var host string
@@ -65,7 +64,7 @@ func TestApplyLabel(t *testing.T) {
 			},
 		},
 	}
-	entries := makeRoutes(&container.Summary{
+	entries := makeRoutes(&container.SummaryTrimmed{
 		Names: dummyNames,
 		Labels: map[string]string{
 			D.LabelAliases:          "a,b",
@@ -137,7 +136,7 @@ func TestApplyLabel(t *testing.T) {
 }
 
 func TestApplyLabelWithAlias(t *testing.T) {
-	entries := makeRoutes(&container.Summary{
+	entries := makeRoutes(&container.SummaryTrimmed{
 		Names: dummyNames,
 		State: "running",
 		Labels: map[string]string{
@@ -164,7 +163,7 @@ func TestApplyLabelWithAlias(t *testing.T) {
 }
 
 func TestApplyLabelWithRef(t *testing.T) {
-	entries := makeRoutes(&container.Summary{
+	entries := makeRoutes(&container.SummaryTrimmed{
 		Names: dummyNames,
 		State: "running",
 		Labels: map[string]string{
@@ -192,7 +191,7 @@ func TestApplyLabelWithRef(t *testing.T) {
 }
 
 func TestApplyLabelWithRefIndexError(t *testing.T) {
-	c := D.FromDocker(&container.Summary{
+	c := D.FromDocker(&container.SummaryTrimmed{
 		Names: dummyNames,
 		State: "running",
 		Labels: map[string]string{
@@ -206,7 +205,7 @@ func TestApplyLabelWithRefIndexError(t *testing.T) {
 	_, err := p.routesFromContainerLabels(c)
 	expect.ErrorIs(t, ErrAliasRefIndexOutOfRange, err)
 
-	c = D.FromDocker(&container.Summary{
+	c = D.FromDocker(&container.SummaryTrimmed{
 		Names: dummyNames,
 		State: "running",
 		Labels: map[string]string{
@@ -219,7 +218,7 @@ func TestApplyLabelWithRefIndexError(t *testing.T) {
 }
 
 func TestDynamicAliases(t *testing.T) {
-	c := &container.Summary{
+	c := &container.SummaryTrimmed{
 		Names: []string{"app1"},
 		State: "running",
 		Labels: map[string]string{
@@ -242,7 +241,7 @@ func TestDynamicAliases(t *testing.T) {
 }
 
 func TestDisableHealthCheck(t *testing.T) {
-	c := &container.Summary{
+	c := &container.SummaryTrimmed{
 		Names: dummyNames,
 		State: "running",
 		Labels: map[string]string{
@@ -256,7 +255,7 @@ func TestDisableHealthCheck(t *testing.T) {
 }
 
 func TestPublicIPLocalhost(t *testing.T) {
-	c := &container.Summary{Names: dummyNames, State: "running"}
+	c := &container.SummaryTrimmed{Names: dummyNames, State: "running"}
 	r, ok := makeRoutes(c)["a"]
 	expect.True(t, ok)
 	expect.Equal(t, r.Container.PublicHostname, "127.0.0.1")
@@ -264,7 +263,7 @@ func TestPublicIPLocalhost(t *testing.T) {
 }
 
 func TestPublicIPRemote(t *testing.T) {
-	c := &container.Summary{Names: dummyNames, State: "running"}
+	c := &container.SummaryTrimmed{Names: dummyNames, State: "running"}
 	raw, ok := makeRoutes(c, testIP)["a"]
 	expect.True(t, ok)
 	expect.Equal(t, raw.Container.PublicHostname, testIP)
@@ -272,10 +271,10 @@ func TestPublicIPRemote(t *testing.T) {
 }
 
 func TestPrivateIPLocalhost(t *testing.T) {
-	c := &container.Summary{
+	c := &container.SummaryTrimmed{
 		Names: dummyNames,
-		NetworkSettings: &container.NetworkSettingsSummary{
-			Networks: map[string]*network.EndpointSettings{
+		NetworkSettings: &container.NetworkSettingsSummaryTrimmed{
+			Networks: map[string]*struct{ IPAddress string }{
 				"network": {
 					IPAddress: testDockerIP,
 				},
@@ -289,11 +288,11 @@ func TestPrivateIPLocalhost(t *testing.T) {
 }
 
 func TestPrivateIPRemote(t *testing.T) {
-	c := &container.Summary{
+	c := &container.SummaryTrimmed{
 		Names: dummyNames,
 		State: "running",
-		NetworkSettings: &container.NetworkSettingsSummary{
-			Networks: map[string]*network.EndpointSettings{
+		NetworkSettings: &container.NetworkSettingsSummaryTrimmed{
+			Networks: map[string]*struct{ IPAddress string }{
 				"network": {
 					IPAddress: testDockerIP,
 				},
@@ -311,11 +310,11 @@ func TestStreamDefaultValues(t *testing.T) {
 	privPort := uint16(1234)
 	pubPort := uint16(4567)
 	privIP := "172.17.0.123"
-	cont := &container.Summary{
+	cont := &container.SummaryTrimmed{
 		Names: []string{"a"},
 		State: "running",
-		NetworkSettings: &container.NetworkSettingsSummary{
-			Networks: map[string]*network.EndpointSettings{
+		NetworkSettings: &container.NetworkSettingsSummaryTrimmed{
+			Networks: map[string]*struct{ IPAddress string }{
 				"network": {
 					IPAddress: privIP,
 				},
@@ -348,7 +347,7 @@ func TestStreamDefaultValues(t *testing.T) {
 }
 
 func TestExplicitExclude(t *testing.T) {
-	r, ok := makeRoutes(&container.Summary{
+	r, ok := makeRoutes(&container.SummaryTrimmed{
 		Names: dummyNames,
 		Labels: map[string]string{
 			D.LabelAliases:          "a",
@@ -362,17 +361,17 @@ func TestExplicitExclude(t *testing.T) {
 
 func TestImplicitExcludeDatabase(t *testing.T) {
 	t.Run("mount path detection", func(t *testing.T) {
-		r, ok := makeRoutes(&container.Summary{
+		r, ok := makeRoutes(&container.SummaryTrimmed{
 			Names: dummyNames,
-			Mounts: []container.MountPoint{
-				{Source: "/data", Destination: "/var/lib/postgresql/data"},
+			Mounts: []container.MountPointTrimmed{
+				{Destination: "/var/lib/postgresql/data"},
 			},
 		})["a"]
 		expect.True(t, ok)
 		expect.True(t, r.ShouldExclude())
 	})
 	t.Run("exposed port detection", func(t *testing.T) {
-		r, ok := makeRoutes(&container.Summary{
+		r, ok := makeRoutes(&container.SummaryTrimmed{
 			Names: dummyNames,
 			Ports: []container.Port{
 				{Type: "tcp", PrivatePort: 5432, PublicPort: 5432},

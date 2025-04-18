@@ -2,11 +2,9 @@ package docker
 
 import (
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/go-connections/nat"
 	"github.com/yusing/go-proxy/agent/pkg/agent"
 	"github.com/yusing/go-proxy/internal/gperr"
 	idlewatcher "github.com/yusing/go-proxy/internal/idlewatcher/types"
@@ -51,7 +49,7 @@ type (
 
 var DummyContainer = new(Container)
 
-func FromDocker(c *container.Summary, dockerHost string) (res *Container) {
+func FromDocker(c *container.SummaryTrimmed, dockerHost string) (res *Container) {
 	var isExplicit bool
 	for lbl := range c.Labels {
 		if strings.HasPrefix(lbl, NSProxy+".") {
@@ -93,41 +91,6 @@ func FromDocker(c *container.Summary, dockerHost string) (res *Container) {
 
 	res.RouteConfig = utils.FitMap(c.Labels)
 	return
-}
-
-func FromInspectResponse(json container.InspectResponse, dockerHost string) *Container {
-	ports := make([]container.Port, 0, len(json.NetworkSettings.Ports))
-	for k, bindings := range json.NetworkSettings.Ports {
-		proto, privPortStr := nat.SplitProtoPort(string(k))
-		privPort, _ := strconv.ParseUint(privPortStr, 10, 16)
-		ports = append(ports, container.Port{
-			PrivatePort: uint16(privPort),
-			Type:        proto,
-		})
-		for _, v := range bindings {
-			pubPort, _ := strconv.ParseUint(v.HostPort, 10, 16)
-			ports = append(ports, container.Port{
-				IP:          v.HostIP,
-				PublicPort:  uint16(pubPort),
-				PrivatePort: uint16(privPort),
-				Type:        proto,
-			})
-		}
-	}
-	cont := FromDocker(&container.Summary{
-		ID:     json.ID,
-		Names:  []string{strings.TrimPrefix(json.Name, "/")},
-		Image:  json.Image,
-		Ports:  ports,
-		Labels: json.Config.Labels,
-		State:  json.State.Status,
-		Status: json.State.Status,
-		Mounts: json.Mounts,
-		NetworkSettings: &container.NetworkSettingsSummary{
-			Networks: json.NetworkSettings.Networks,
-		},
-	}, dockerHost)
-	return cont
 }
 
 func (c *Container) IsBlacklisted() bool {
