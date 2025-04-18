@@ -12,16 +12,21 @@ import (
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/internal/task"
 	"github.com/yusing/go-proxy/internal/utils/synk"
+	"golang.org/x/time/rate"
 )
 
 type (
 	AccessLogger struct {
-		task     *task.Task
-		cfg      *Config
-		io       AccessLogIO
-		buffered *bufio.Writer
+		task          *task.Task
+		cfg           *Config
+		io            AccessLogIO
+		buffered      *bufio.Writer
+		supportRotate bool
 
 		lineBufPool *synk.BytesPool // buffer pool for formatting a single log line
+
+		errRateLimiter *rate.Limiter
+
 		Formatter
 	}
 
@@ -79,10 +84,12 @@ func NewAccessLoggerWithIO(parent task.Parent, io AccessLogIO, cfg *Config) *Acc
 		cfg.BufferSize = 4096
 	}
 	l := &AccessLogger{
-		task:     parent.Subtask("accesslog."+io.Name(), true),
-		cfg:      cfg,
-		io:       io,
-		buffered: bufio.NewWriterSize(io, cfg.BufferSize),
+		task:           parent.Subtask("accesslog."+io.Name(), true),
+		cfg:            cfg,
+		io:             io,
+		buffered:       bufio.NewWriterSize(io, cfg.BufferSize),
+		lineBufPool:    synk.NewBytesPool(1024, synk.DefaultMaxBytes),
+		errRateLimiter: rate.NewLimiter(rate.Every(time.Second), 1),
 	}
 
 	fmt := CommonFormatter{cfg: &l.cfg.Fields, GetTimeNow: time.Now}
@@ -97,7 +104,10 @@ func NewAccessLoggerWithIO(parent task.Parent, io AccessLogIO, cfg *Config) *Acc
 		panic("invalid access log format")
 	}
 
-	l.lineBufPool = synk.NewBytesPool(1024, synk.DefaultMaxBytes)
+	if _, ok := l.io.(supportRotate); ok {
+		l.supportRotate = true
+	}
+
 	go l.start()
 	return l
 }
@@ -133,9 +143,10 @@ func (l *AccessLogger) Config() *Config {
 }
 
 func (l *AccessLogger) Rotate() error {
-	if l.cfg.Retention == nil {
+	if l.cfg.Retention == nil || !l.supportRotate {
 		return nil
 	}
+
 	l.io.Lock()
 	defer l.io.Unlock()
 
@@ -143,7 +154,12 @@ func (l *AccessLogger) Rotate() error {
 }
 
 func (l *AccessLogger) handleErr(err error) {
+	if l.errRateLimiter.Allow() {
 	gperr.LogError("failed to write access log", err)
+	} else {
+		gperr.LogError("too many errors, stopping access log", err)
+		l.task.Finish(err)
+	}
 }
 
 func (l *AccessLogger) start() {
@@ -178,9 +194,9 @@ func (l *AccessLogger) Flush() error {
 }
 
 func (l *AccessLogger) close() {
-	l.io.Lock()
-	defer l.io.Unlock()
 	if r, ok := l.io.(io.Closer); ok {
+		l.io.Lock()
+		defer l.io.Unlock()
 		r.Close()
 	}
 }
