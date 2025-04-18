@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -14,6 +13,7 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/sensors"
+	"github.com/shirou/gopsutil/v4/warning"
 	"github.com/yusing/go-proxy/internal/common"
 	"github.com/yusing/go-proxy/internal/logging"
 	"github.com/yusing/go-proxy/internal/metrics/period"
@@ -24,47 +24,18 @@ import (
 // json tags are left for tests
 
 type (
-	MemoryUsage struct {
-		Total       uint64  `json:"total"`
-		Available   uint64  `json:"available"`
-		Used        uint64  `json:"used"`
-		UsedPercent float64 `json:"used_percent"`
-	}
-	Disk struct {
-		Path        string  `json:"path"`
-		Fstype      string  `json:"fstype"`
-		Total       uint64  `json:"total"`
-		Free        uint64  `json:"free"`
-		Used        uint64  `json:"used"`
-		UsedPercent float64 `json:"used_percent"`
-	}
-	DiskIO struct {
-		ReadBytes  uint64  `json:"read_bytes"`
-		WriteBytes uint64  `json:"write_bytes"`
-		ReadCount  uint64  `json:"read_count"`
-		WriteCount uint64  `json:"write_count"`
-		ReadSpeed  float64 `json:"read_speed"`
-		WriteSpeed float64 `json:"write_speed"`
-		Iops       uint64  `json:"iops"`
-	}
-	Network struct {
-		BytesSent     uint64  `json:"bytes_sent"`
-		BytesRecv     uint64  `json:"bytes_recv"`
-		UploadSpeed   float64 `json:"upload_speed"`
-		DownloadSpeed float64 `json:"download_speed"`
-	}
 	Sensors    []sensors.TemperatureStat
 	Aggregated = json.MapSlice[any]
 )
 
 type SystemInfo struct {
-	Timestamp  int64              `json:"timestamp"`
-	CPUAverage *float64           `json:"cpu_average"`
-	Memory     *MemoryUsage       `json:"memory"`
-	Disks      map[string]*Disk   `json:"disks"`    // disk usage by partition
-	DisksIO    map[string]*DiskIO `json:"disks_io"` // disk IO by device
-	Network    *Network           `json:"network"`
-	Sensors    Sensors            `json:"sensors"` // sensor temperature by key
+	Timestamp  int64                           `json:"timestamp"`
+	CPUAverage *float64                        `json:"cpu_average"`
+	Memory     *mem.VirtualMemoryStat          `json:"memory"`
+	Disks      map[string]*disk.UsageStat      `json:"disks"`    // disk usage by partition
+	DisksIO    map[string]*disk.IOCountersStat `json:"disks_io"` // disk IO by device
+	Network    *net.IOCountersStat             `json:"network"`
+	Sensors    Sensors                         `json:"sensors"` // sensor temperature by key
 }
 
 const (
@@ -124,14 +95,9 @@ func getSystemInfo(ctx context.Context, lastResult *SystemInfo) (*SystemInfo, er
 		allWarnings := gperr.NewBuilder("")
 		allErrors := gperr.NewBuilder("failed to get system info")
 		errs.ForEach(func(err error) {
-			// disk.Warnings has the same type
-			// all Warnings are alias of common.Warnings from "github.com/shirou/gopsutil/v4/internal/common"
-			// see line 37
-			warnings := new(sensors.Warnings)
+			warnings := new(warning.Warning)
 			if errors.As(err, &warnings) {
-				for _, warning := range warnings.List {
-					allWarnings.Add(warning)
-				}
+				allWarnings.AddRange(warnings.List...)
 			} else {
 				allErrors.Add(err)
 			}
@@ -157,75 +123,15 @@ func (s *SystemInfo) collectCPUInfo(ctx context.Context) error {
 	return nil
 }
 
-func (s *SystemInfo) collectMemoryInfo(ctx context.Context) error {
-	memoryInfo, err := mem.VirtualMemoryWithContext(ctx)
-	if err != nil {
-		return err
-	}
-	s.Memory = &MemoryUsage{
-		Total:       memoryInfo.Total,
-		Available:   memoryInfo.Available,
-		Used:        memoryInfo.Used,
-		UsedPercent: memoryInfo.UsedPercent,
-	}
-	return nil
+func (s *SystemInfo) collectMemoryInfo(ctx context.Context) (err error) {
+	s.Memory, err = mem.VirtualMemoryWithContext(ctx)
+	return err
 }
 
-func shouldExcludeDisk(name string) bool {
-	// include only sd* and nvme* disk devices
-	// but not partitions like nvme0p1
-
-	if len(name) < 3 {
-		return true
-	}
-	switch {
-	case strings.HasPrefix(name, "nvme"),
-		strings.HasPrefix(name, "mmcblk"): // NVMe/SD/MMC
-		s := name[len(name)-2]
-		// skip namespaces/partitions
-		switch s {
-		case 'p', 'n':
-			return true
-		default:
-			return false
-		}
-	}
-	switch name[0] {
-	case 's', 'h', 'v': // SCSI/SATA/virtio disks
-		if name[1] != 'd' {
-			return true
-		}
-	case 'x': // Xen virtual disks
-		if name[1:3] != "vd" {
-			return true
-		}
-	default:
-		return true
-	}
-	last := name[len(name)-1]
-	if last >= '0' && last <= '9' {
-		// skip partitions
-		return true
-	}
-	return false
-}
-
-func (s *SystemInfo) collectDisksInfo(ctx context.Context, lastResult *SystemInfo) error {
-	ioCounters, err := disk.IOCountersWithContext(ctx)
+func (s *SystemInfo) collectDisksInfo(ctx context.Context, lastResult *SystemInfo) (err error) {
+	s.DisksIO, err = disk.IOCountersWithContext(ctx)
 	if err != nil {
 		return err
-	}
-	s.DisksIO = make(map[string]*DiskIO, len(ioCounters))
-	for name, io := range ioCounters {
-		if shouldExcludeDisk(name) {
-			continue
-		}
-		s.DisksIO[name] = &DiskIO{
-			ReadBytes:  io.ReadBytes,
-			WriteBytes: io.WriteBytes,
-			ReadCount:  io.ReadCount,
-			WriteCount: io.WriteCount,
-		}
 	}
 	if lastResult != nil {
 		interval := float64(time.Now().Unix() - lastResult.Timestamp)
@@ -242,23 +148,15 @@ func (s *SystemInfo) collectDisksInfo(ctx context.Context, lastResult *SystemInf
 	if err != nil {
 		return err
 	}
-	s.Disks = make(map[string]*Disk, len(partitions))
+	s.Disks = make(map[string]*disk.UsageStat, len(partitions))
 	errs := gperr.NewBuilder("failed to get disks info")
 	for _, partition := range partitions {
-		d := &Disk{
-			Path:   partition.Mountpoint,
-			Fstype: partition.Fstype,
-		}
-		diskInfo, err := disk.UsageWithContext(ctx, partition.Mountpoint)
+		diskUsage, err := disk.UsageWithContext(ctx, partition.Mountpoint)
 		if err != nil {
 			errs.Add(err)
 			continue
 		}
-		d.Total = diskInfo.Total
-		d.Free = diskInfo.Free
-		d.Used = diskInfo.Used
-		d.UsedPercent = diskInfo.UsedPercent
-		s.Disks[partition.Device] = d
+		s.Disks[partition.Device] = diskUsage
 	}
 
 	if errs.HasError() {
@@ -275,10 +173,7 @@ func (s *SystemInfo) collectNetworkInfo(ctx context.Context, lastResult *SystemI
 	if err != nil {
 		return err
 	}
-	s.Network = &Network{
-		BytesSent: networkIO[0].BytesSent,
-		BytesRecv: networkIO[0].BytesRecv,
-	}
+	s.Network = networkIO[0]
 	if lastResult != nil {
 		interval := float64(time.Now().Unix() - lastResult.Timestamp)
 		s.Network.UploadSpeed = float64(networkIO[0].BytesSent-lastResult.Network.BytesSent) / interval
@@ -416,26 +311,6 @@ func (s *SystemInfo) MarshalJSONTo(b []byte) []byte {
 
 	b = append(b, '}')
 	return b
-}
-
-func (s *Sensors) UnmarshalJSON(data []byte) error {
-	var v map[string]map[string]any
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	if len(v) == 0 {
-		return nil
-	}
-	*s = make(Sensors, 0, len(v))
-	for k, v := range v {
-		*s = append(*s, sensors.TemperatureStat{
-			SensorKey:   k,
-			Temperature: v["temperature"].(float64),
-			High:        v["high"].(float64),
-			Critical:    v["critical"].(float64),
-		})
-	}
-	return nil
 }
 
 // recharts friendly

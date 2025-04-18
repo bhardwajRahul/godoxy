@@ -65,6 +65,8 @@ require (
 	github.com/stretchr/testify v1.10.0 // testing utilities
 )
 
+replace github.com/shirou/gopsutil/v4 => github.com/godoxy-app/gopsutil/v4 v4.25.3-3
+
 require (
 	github.com/luthermonson/go-proxmox v0.2.2 // proxmox api
 	github.com/spf13/afero v1.14.0 // mock file system
