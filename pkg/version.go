@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -30,17 +31,24 @@ func init() {
 		_, err = fmt.Fscanf(f, "%s", &lastVersionStr)
 		lastVersion = ParseVersion(lastVersionStr)
 	}
-	if err != nil && !os.IsNotExist(err) {
-		logging.Warn().Err(err).Msg("failed to read version file")
+	if err != nil {
+		if !os.IsNotExist(err) {
+			logging.Warn().Err(err).Msg("failed to read version file")
+		}
 		return
 	}
-	if err := f.Truncate(0); err != nil {
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
 		logging.Warn().Err(err).Msg("failed to truncate version file")
 		return
 	}
-	_, err = f.WriteString(version)
+	n, err := f.WriteString(version)
 	if err != nil {
 		logging.Warn().Err(err).Msg("failed to save version file")
+		return
+	}
+	err = f.Truncate(int64(n))
+	if err != nil {
+		logging.Warn().Err(err).Msg("failed to truncate version file")
 		return
 	}
 }
